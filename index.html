@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title>   Showcase PC </title>
+</head>
+<script src="build/three.min.js"></script>
+<script src="build/OrbitControls.js"></script>
+<script src="build/GLTFLoader.js"></script>
+<style type="text/css">
+	body { margin:0; }
+	canvas { width:100%; height: 100%; }
+
+</style>
+
+
+<body >
+<script type="text/javascript">
+
+    const clock = new THREE.Clock();
+	var scene  =	new THREE.Scene();
+	var camera =	new THREE.PerspectiveCamera(75	,window.innerWidth/window.innerHeight	,0.1	,1000 );
+	var renderer = 	new THREE.WebGLRenderer();
+	renderer.setSize(window.innerWidth,window.innerHeight);
+	document.body.appendChild(renderer.domElement);
+
+
+	camera.position.x=0;
+	camera.position.y=10;
+	camera.position.z=15;
+	window.addEventListener("resize",function(){
+		var width 	=	window.innerWidth;
+		var height 	=	window.innerHeight;
+		renderer.setSize(width,height);
+		camera.aspect=	width/height;
+		camera.updateProjectionMatrix();
+
+	} );
+
+	controls=new THREE.OrbitControls(camera,renderer.domElement);
+	var lambertLight=new THREE.AmbientLight(0xffffff,100)
+
+	var laptop	;
+	const loader = new THREE.GLTFLoader();
+	var a;
+	loader.load( 'final.gltf', function ( gltf ) {
+		laptop=gltf.scene;
+		mixer = new THREE.AnimationMixer( gltf.scene );
+        scene.add(laptop);   
+        action = mixer.clipAction( gltf.animations[2] );
+        action1 = mixer.clipAction( gltf.animations[1] );
+        action2 = mixer.clipAction( gltf.animations[0] );
+        action.play();
+        action.clampWhenFinished=true;
+        action.setLoop( 0, -1) ;
+        animate();
+		action1.play();
+        action1.clampWhenFinished=true;
+        action1.setLoop( 0, -1) ;
+        animate();
+       	action2.play();
+        action2.clampWhenFinished=true;
+        action2.setLoop( 0, -1) ;
+        animate();
+
+					
+
+	}
+        );
+
+	var ambientLight= new THREE.AmbientLight(0xFFFFFF,50);
+	scene.add(ambientLight);
+
+
+    function animate() {
+    	        requestAnimationFrame( animate );
+    	        const delta = clock.getDelta();
+    	        mixer.update(delta);
+    	        controls.update();
+    }
+
+	var lights= [new THREE.PointLight(0xffffff,4,20),
+				new THREE.PointLight(0xffffff,4,30),
+				new THREE.PointLight(0xffffff,4,70),
+				new THREE.PointLight(0xffffff,4,80)];
+	
+	for (var i=0;i<4;i++){
+		lights[i].position.x=10;
+		lights[i].position.y=10;
+		lights[i].position.z=10;
+		scene.add(lights[i]);
+	}
+	
+
+	var l=0;
+	var frame;
+	var update= function(){
+		var time=Date.now( ) *0.0005;
+		if(l<6 && laptop){
+			var a=Math.PI*l
+			camera.position.x=20*Math.sin(a);
+			camera.position.z=20*Math.cos(a);
+			camera.lookAt( laptop.position );
+
+			if(l<4.0){ l+=0.03; 
+			}
+			else{l+=0.004; 
+        		 }
+
+			}
+		
+		lights[0].position.x=Math.sin(time*0.7)*30;
+		lights[0].position.y=Math.cos(time*0.5)*40;
+		lights[0].position.z=Math.sin(time*0.3)*30;
+
+		lights[1].position.x=Math.cos(time*0.7)*30;
+		lights[1].position.y=Math.sin(time*0.5)*40;
+		lights[1].position.z=Math.cos(time*0.3)*30;
+
+		lights[2].position.x=-Math.sin(time*0.7)*30;
+		lights[2].position.y=-Math.cos(time*0.5)*40;
+		lights[2].position.z=-Math.sin(time*0.3)*30;
+
+		lights[3].position.x=-Math.cos(time*0.7)*30;
+		lights[3].position.y=-Math.sin(time*0.5)*40;
+		lights[3].position.z=-Math.cos(time*0.3)*30;
+		
+		
+
+	};
+
+	//draw scene
+	var render= function(){
+		renderer.render(scene,camera);
+
+	};
+
+	//run scene loop ( update , repeate)
+	var GameLoop=function(){
+		requestAnimationFrame(GameLoop);
+		update();
+		render();
+	};
+
+	GameLoop();
+</script>
+
+
+</body>
+</html>
